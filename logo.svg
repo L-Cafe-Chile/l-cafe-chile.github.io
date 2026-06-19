@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" fill="none">
+  <!-- Steam wisps -->
+  <path d="M200 40 C200 40, 195 70, 200 90 C205 110, 190 120, 195 140" stroke="#C4A265" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.9"/>
+  <path d="M215 55 C215 55, 210 80, 215 95 C220 110, 208 118, 212 132" stroke="#B8956A" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.7"/>
+  <path d="M185 50 C185 50, 182 75, 186 88 C190 101, 180 112, 184 125" stroke="#C4A265" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.6"/>
+
+  <!-- Gothic L - Death Note style -->
+  <text x="200" y="310" text-anchor="middle" font-family="'UnifrakturMaguntia', 'Old English Text MT', serif" font-size="260" fill="#2C1A0E" letter-spacing="-5">L</text>
+
+  <!-- L'CAFÉ text -->
+  <text x="200" y="410" text-anchor="middle" font-family="'Playfair Display', 'Georgia', serif" font-size="62" fill="#2C1A0E" letter-spacing="8" font-weight="400">L'CAFÉ</text>
+</svg>
