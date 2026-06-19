@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>L'Cafe — Café Premium & Vending</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#inicio" class="nav-logo">
+        <span class="gothic-l">L</span><span class="logo-rest">'Cafe</span>
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="#inicio">Inicio</a></li>
+        <li><a href="#productos">Productos y Servicios</a></li>
+        <li><a href="#nosotros">Nosotros</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" id="inicio">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1><span class="gothic-l hero-l">L</span><span class="hero-title">'Cafe</span></h1>
+      <p class="hero-subtitle">El arte del café, en cada taza</p>
+      <a href="#productos" class="btn btn-primary">Descubre Nuestros Productos</a>
+    </div>
+  </section>
+
+  <!-- Productos y Servicios -->
+  <section class="section" id="productos">
+    <div class="container">
+      <h2 class="section-title">Productos y Servicios</h2>
+      <div class="services-grid">
+
+        <!-- Venta de Café -->
+        <div class="service-card">
+          <div class="service-icon">☕</div>
+          <h3>Venta de Café</h3>
+          <p class="service-desc">Selección premium de granos de café de las mejores regiones. Tostado artesanal para un sabor incomparable.</p>
+          <ul class="product-list">
+            <li>
+              <span class="product-name">Café de Origen — Chiapas</span>
+              <span class="product-price">$180 MXN / 250g</span>
+            </li>
+            <li>
+              <span class="product-name">Café de Origen — Veracruz</span>
+              <span class="product-price">$195 MXN / 250g</span>
+            </li>
+            <li>
+              <span class="product-name">Blend de la Casa</span>
+              <span class="product-price">$160 MXN / 250g</span>
+            </li>
+            <li>
+              <span class="product-name">Café Descafeinado</span>
+              <span class="product-price">$170 MXN / 250g</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Máquina de Vending -->
+        <div class="service-card">
+          <div class="service-icon">🏭</div>
+          <h3>Máquina de Vending</h3>
+          <p class="service-desc">Llevamos el mejor café directamente a tu empresa, oficina o establecimiento con nuestras máquinas de vending de alta calidad.</p>
+          <ul class="feature-list">
+            <li>✔ Instalación sin costo</li>
+            <li>✔ Mantenimiento incluido</li>
+            <li>✔ Café premium en cada taza</li>
+            <li>✔ Variedad de bebidas calientes</li>
+            <li>✔ Soporte técnico 24/7</li>
+            <li>✔ Planes flexibles para empresas</li>
+          </ul>
+          <a href="#contacto" class="btn btn-secondary">Solicitar Cotización</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Nosotros -->
+  <section class="section section-alt" id="nosotros">
+    <div class="container">
+      <h2 class="section-title">Nosotros</h2>
+      <div class="about-content">
+        <div class="about-text">
+          <p class="about-lead">En <strong>L'Cafe</strong>, creemos que un gran café puede transformar tu día.</p>
+          <p>Somos una empresa dedicada a llevar café de la más alta calidad directamente a ti. Ya sea a través de nuestros granos cuidadosamente seleccionados o mediante nuestras máquinas de vending, nuestra misión es que cada taza sea una experiencia excepcional.</p>
+          <p>Trabajamos directamente con productores locales, asegurando un comercio justo y un producto que respeta tanto al agricultor como al medio ambiente.</p>
+          <div class="about-stats">
+            <div class="stat">
+              <span class="stat-number">500+</span>
+              <span class="stat-label">Clientes Satisfechos</span>
+            </div>
+            <div class="stat">
+              <span class="stat-number">50+</span>
+              <span class="stat-label">Máquinas Instaladas</span>
+            </div>
+            <div class="stat">
+              <span class="stat-number">3</span>
+              <span class="stat-label">Años de Experiencia</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contacto -->
+  <section class="section" id="contacto">
+    <div class="container">
+      <h2 class="section-title">Contacto</h2>
+      <div class="contact-grid">
+        <div class="contact-info">
+          <div class="contact-item">
+            <span class="contact-icon">📍</span>
+            <div>
+              <h4>Dirección</h4>
+              <p>Av. Ejemplo #123, Col. Centro<br>Ciudad de México, CDMX</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <span class="contact-icon">📞</span>
+            <div>
+              <h4>Teléfono</h4>
+              <p>+52 (55) 1234-5678</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <span class="contact-icon">✉️</span>
+            <div>
+              <h4>Email</h4>
+              <p>contacto@lcafe.com</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <span class="contact-icon">🕐</span>
+            <div>
+              <h4>Horario</h4>
+              <p>Lunes a Viernes: 8:00 — 18:00<br>Sábado: 9:00 — 14:00</p>
+            </div>
+          </div>
+          <div class="contact-socials">
+            <a href="#" class="social-link" aria-label="Facebook">FB</a>
+            <a href="#" class="social-link" aria-label="Instagram">IG</a>
+            <a href="#" class="social-link" aria-label="WhatsApp">WA</a>
+          </div>
+        </div>
+        <form class="contact-form" onsubmit="handleSubmit(event)">
+          <h3>Envíanos un mensaje</h3>
+          <input type="text" placeholder="Tu nombre" required>
+          <input type="email" placeholder="Tu email" required>
+          <select>
+            <option value="">¿En qué te podemos ayudar?</option>
+            <option value="cafe">Venta de Café</option>
+            <option value="vending">Máquina de Vending</option>
+            <option value="otro">Otro</option>
+          </select>
+          <textarea placeholder="Tu mensaje" rows="4" required></textarea>
+          <button type="submit" class="btn btn-primary">Enviar Mensaje</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <span class="gothic-l">L</span><span class="logo-rest">'Cafe</span>
+        </div>
+        <p>&copy; 2026 L'Cafe. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
