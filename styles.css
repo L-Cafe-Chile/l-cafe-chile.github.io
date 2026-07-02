@@ -174,18 +174,11 @@ body {
   padding: 20px;
 }
 
-.hero-logo-card {
-  display: inline-block;
-  background: var(--cream-light);
-  border-radius: 20px;
-  padding: 24px 40px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-}
-
 .hero-logo {
-  height: 220px;
+  height: 200px;
   width: auto;
-  display: block;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
 .hero-subtitle {
@@ -605,17 +598,10 @@ body {
   gap: 12px;
 }
 
-.footer-logo-card {
-  display: inline-block;
-  background: var(--cream-light);
-  border-radius: 12px;
-  padding: 10px 20px;
-}
-
 .footer-logo-img {
-  height: 50px;
+  height: 45px;
   width: auto;
-  display: block;
+  border-radius: 8px;
 }
 
 .footer p {
