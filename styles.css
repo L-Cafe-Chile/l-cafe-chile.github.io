@@ -174,11 +174,18 @@ body {
   padding: 20px;
 }
 
+.hero-logo-card {
+  display: inline-block;
+  background: var(--cream-light);
+  border-radius: 20px;
+  padding: 24px 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
 .hero-logo {
-  height: 250px;
+  height: 220px;
   width: auto;
-  filter: brightness(0) invert(1) brightness(0.95) sepia(0.2);
-  drop-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+  display: block;
 }
 
 .hero-subtitle {
@@ -598,10 +605,17 @@ body {
   gap: 12px;
 }
 
+.footer-logo-card {
+  display: inline-block;
+  background: var(--cream-light);
+  border-radius: 12px;
+  padding: 10px 20px;
+}
+
 .footer-logo-img {
-  height: 60px;
+  height: 50px;
   width: auto;
-  filter: brightness(0) invert(1) brightness(0.9);
+  display: block;
 }
 
 .footer p {
