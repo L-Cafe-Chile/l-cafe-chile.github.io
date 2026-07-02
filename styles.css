@@ -174,11 +174,17 @@ body {
   padding: 20px;
 }
 
+.hero-logo-card {
+  display: inline-block;
+  background: var(--cream-light);
+  border-radius: 14px;
+  padding: 12px 18px;
+  line-height: 0;
+}
+
 .hero-logo {
   height: 200px;
   width: auto;
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
 .hero-subtitle {
@@ -598,10 +604,17 @@ body {
   gap: 12px;
 }
 
+.footer-logo-card {
+  display: inline-block;
+  background: var(--cream-light);
+  border-radius: 10px;
+  padding: 8px 14px;
+  line-height: 0;
+}
+
 .footer-logo-img {
   height: 45px;
   width: auto;
-  border-radius: 8px;
 }
 
 .footer p {
