@@ -51,3 +51,59 @@ document.querySelectorAll('.service-card, .contact-form, .contact-info, .about-c
   el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
   observer.observe(el);
 });
+
+// Modal de producto: selección de formato (250g / kg)
+const productModal = document.getElementById('productModal');
+const modalImg = document.getElementById('modalImg');
+const modalTitle = document.getElementById('modalTitle');
+const modalDesc = document.getElementById('modalDesc');
+const modalPrice = document.getElementById('modalPrice');
+const PRICE_250G = 12990;
+
+function formatCLP(value) {
+  return '$' + value.toLocaleString('es-CL');
+}
+
+function updateModalPrice() {
+  const selected = document.querySelector('input[name="modalSize"]:checked');
+  if (!selected) return;
+  if (selected.value === '250') {
+    modalPrice.textContent = formatCLP(PRICE_250G);
+  } else {
+    modalPrice.textContent = formatCLP(Number(productModal.dataset.kgPrice)) + ' / kg';
+  }
+}
+
+function openProductModal(card) {
+  modalImg.src = card.querySelector('.product-img').src;
+  modalImg.alt = card.querySelector('.product-img').alt;
+  modalTitle.textContent = card.querySelector('.product-title').textContent;
+  modalDesc.textContent = card.dataset.desc || card.querySelector('.product-text').textContent;
+  productModal.dataset.kgPrice = card.dataset.kgPrice;
+
+  const size250 = document.querySelector('input[name="modalSize"][value="250"]');
+  if (size250) size250.checked = true;
+  updateModalPrice();
+
+  productModal.classList.add('active');
+  document.body.classList.add('modal-open');
+}
+
+function closeProductModal() {
+  productModal.classList.remove('active');
+  document.body.classList.remove('modal-open');
+}
+
+document.querySelectorAll('.product-card').forEach(card => {
+  card.style.cursor = 'pointer';
+  card.addEventListener('click', () => openProductModal(card));
+});
+
+document.querySelectorAll('input[name="modalSize"]').forEach(input => {
+  input.addEventListener('change', updateModalPrice);
+  input.addEventListener('click', (e) => e.stopPropagation());
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeProductModal();
+});
