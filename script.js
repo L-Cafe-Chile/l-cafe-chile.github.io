@@ -58,7 +58,7 @@ const modalImg = document.getElementById('modalImg');
 const modalTitle = document.getElementById('modalTitle');
 const modalDesc = document.getElementById('modalDesc');
 const modalPrice = document.getElementById('modalPrice');
-const PRICE_250G = 12990;
+const DEFAULT_PRICE_250G = 12990;
 
 function formatCLP(value) {
   return '$' + value.toLocaleString('es-CL');
@@ -68,7 +68,8 @@ function updateModalPrice() {
   const selected = document.querySelector('input[name="modalSize"]:checked');
   if (!selected) return;
   if (selected.value === '250') {
-    modalPrice.textContent = formatCLP(PRICE_250G);
+    const price250 = Number(productModal.dataset.price250) || DEFAULT_PRICE_250G;
+    modalPrice.textContent = formatCLP(price250);
   } else {
     modalPrice.textContent = formatCLP(Number(productModal.dataset.kgPrice)) + ' / kg';
   }
@@ -80,6 +81,7 @@ function openProductModal(card) {
   modalTitle.textContent = card.querySelector('.product-title').textContent;
   modalDesc.textContent = card.dataset.desc || card.querySelector('.product-text').textContent;
   productModal.dataset.kgPrice = card.dataset.kgPrice;
+  productModal.dataset.price250 = card.dataset['250Price'] || '';
 
   const size250 = document.querySelector('input[name="modalSize"][value="250"]');
   if (size250) size250.checked = true;
