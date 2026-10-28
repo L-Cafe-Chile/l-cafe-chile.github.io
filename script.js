@@ -300,15 +300,15 @@ orderForm.addEventListener('submit', (e) => {
     Notas: data.get('notas') || '—'
   });
 
-  // Confirmación al cliente: con diseño vía EmailJS si está configurado; si no, texto simple vía FormSubmit
-  if (emailjsReady()) {
-    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, buildCustomerEmailParams(data, orderNumber, delivery, total))
-      .catch(() => {});
-  } else {
-    payload._autoresponse = buildCustomerConfirmation(data.get('nombre'), orderNumber, delivery, total);
-  }
-
-  sendOrderEmail(payload);
+  // Confirmación al cliente: con diseño vía EmailJS; si no carga o falla, texto simple vía FormSubmit.
+  // El resultado queda anotado en el correo interno para saber si al cliente le llegó.
+  const customerParams = buildCustomerEmailParams(data, orderNumber, delivery, total);
+  const fallbackText = buildCustomerConfirmation(data.get('nombre'), orderNumber, delivery, total);
+  sendCustomerConfirmation(customerParams).then(status => {
+    payload['Confirmación al cliente'] = status.message;
+    if (!status.sent) payload._autoresponse = fallbackText;
+    sendOrderEmail(payload);
+  });
 
   currentOrder = {
     number: orderNumber,
@@ -351,6 +351,22 @@ function buildCustomerEmailParams(data, orderNumber, delivery, total) {
     entrega: deliveryDescription(delivery),
     pay_url: WEBPAY_URL
   };
+}
+
+async function sendCustomerConfirmation(params) {
+  if (!emailjsReady()) {
+    return { sent: false, message: 'Enviada en texto simple: EmailJS no cargó en el navegador del cliente' };
+  }
+  try {
+    await Promise.race([
+      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('sin respuesta en 10 segundos')), 10000))
+    ]);
+    return { sent: true, message: 'Enviada con logo (EmailJS)' };
+  } catch (err) {
+    const detail = (err && (err.text || err.message)) || 'sin detalle';
+    return { sent: false, message: `EmailJS falló (${err && err.status ? err.status + ': ' : ''}${detail}); se envió en texto simple` };
+  }
 }
 
 function buildCustomerConfirmation(nombre, orderNumber, delivery, total) {
