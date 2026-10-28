@@ -58,21 +58,30 @@ const modalImg = document.getElementById('modalImg');
 const modalTitle = document.getElementById('modalTitle');
 const modalDesc = document.getElementById('modalDesc');
 const modalPrice = document.getElementById('modalPrice');
+const modalQty = document.getElementById('modalQty');
 const DEFAULT_PRICE_250G = 12990;
+let modalQuantity = 1;
 
 function formatCLP(value) {
   return '$' + value.toLocaleString('es-CL');
 }
 
-function updateModalPrice() {
+function getModalSelection() {
   const selected = document.querySelector('input[name="modalSize"]:checked');
-  if (!selected) return;
-  if (selected.value === '250') {
-    const price250 = Number(productModal.dataset.price250) || DEFAULT_PRICE_250G;
-    modalPrice.textContent = formatCLP(price250);
-  } else {
-    modalPrice.textContent = formatCLP(Number(productModal.dataset.kgPrice)) + ' / kg';
+  if (selected && selected.value === '1000') {
+    return { size: '1 kg', price: Number(productModal.dataset.kgPrice) };
   }
+  return { size: '250 g', price: Number(productModal.dataset.price250) || DEFAULT_PRICE_250G };
+}
+
+function updateModalPrice() {
+  const { size, price } = getModalSelection();
+  modalPrice.textContent = formatCLP(price) + (size === '1 kg' ? ' / kg' : '');
+}
+
+function setModalQty(value) {
+  modalQuantity = Math.max(1, Math.min(20, value));
+  modalQty.textContent = modalQuantity;
 }
 
 function openProductModal(card) {
@@ -85,6 +94,7 @@ function openProductModal(card) {
 
   const size250 = document.querySelector('input[name="modalSize"][value="250"]');
   if (size250) size250.checked = true;
+  setModalQty(1);
   updateModalPrice();
 
   productModal.classList.add('active');
@@ -106,6 +116,212 @@ document.querySelectorAll('input[name="modalSize"]').forEach(input => {
   input.addEventListener('click', (e) => e.stopPropagation());
 });
 
+document.getElementById('modalQtyDec').addEventListener('click', () => setModalQty(modalQuantity - 1));
+document.getElementById('modalQtyInc').addEventListener('click', () => setModalQty(modalQuantity + 1));
+
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeProductModal();
 });
+
+// === Pedido y pago con Webpay ===
+// Pega aquí, entre las comillas, el link de pago que generaste en Transbank:
+const WEBPAY_URL = 'https://www.webpay.cl/form-pay/434839';
+const SHIPPING_RM = 4000;
+const ORDER_EMAIL = 'lcafechile@gmail.com';
+const CART_KEY = 'lcafe-cart';
+
+const cartItemsEl = document.getElementById('cartItems');
+const cartEmptyEl = document.getElementById('cartEmpty');
+const cartCountEl = document.getElementById('cartCount');
+const orderForm = document.getElementById('orderForm');
+const orderSubmit = document.getElementById('orderSubmit');
+const addressFields = document.getElementById('addressFields');
+const payStep = document.getElementById('payStep');
+const toast = document.getElementById('toast');
+let cart = loadCart();
+let toastTimer;
+
+function loadCart() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CART_KEY));
+    return Array.isArray(saved) ? saved : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveCart() {
+  try {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  } catch (e) {
+    // Sin almacenamiento disponible: el pedido vive solo en esta visita
+  }
+}
+
+function getDelivery() {
+  return document.querySelector('input[name="delivery"]:checked').value;
+}
+
+function cartSubtotal() {
+  return cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+}
+
+function shippingCost() {
+  return cart.length && getDelivery() === 'despacho' ? SHIPPING_RM : 0;
+}
+
+function renderCart() {
+  cartItemsEl.innerHTML = '';
+  cart.forEach((item, index) => {
+    const li = document.createElement('li');
+    li.className = 'cart-item';
+    li.dataset.index = index;
+    li.innerHTML = `
+      <div class="cart-item-info"><strong></strong><small></small></div>
+      <div class="qty-control">
+        <button type="button" data-action="dec" aria-label="Quitar uno">−</button>
+        <span></span>
+        <button type="button" data-action="inc" aria-label="Agregar uno">+</button>
+      </div>
+      <span class="cart-item-total"></span>
+      <button type="button" class="cart-item-remove" data-action="remove" aria-label="Eliminar">&times;</button>`;
+    li.querySelector('strong').textContent = item.name;
+    li.querySelector('small').textContent = `${item.size} · ${formatCLP(item.price)} c/u`;
+    li.querySelector('.qty-control span').textContent = item.qty;
+    li.querySelector('.cart-item-total').textContent = formatCLP(item.price * item.qty);
+    cartItemsEl.appendChild(li);
+  });
+
+  const count = cart.reduce((sum, item) => sum + item.qty, 0);
+  cartCountEl.textContent = count;
+  cartEmptyEl.hidden = cart.length > 0;
+  orderSubmit.disabled = cart.length === 0;
+
+  document.getElementById('cartSubtotal').textContent = formatCLP(cartSubtotal());
+  document.getElementById('cartShipping').textContent = shippingCost() ? formatCLP(shippingCost()) : (getDelivery() === 'retiro' ? 'Gratis' : '$0');
+  document.getElementById('cartTotal').textContent = formatCLP(cartSubtotal() + shippingCost());
+}
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+document.getElementById('modalAddToCart').addEventListener('click', () => {
+  const { size, price } = getModalSelection();
+  const name = modalTitle.textContent;
+  const existing = cart.find(item => item.name === name && item.size === size);
+  if (existing) {
+    existing.qty += modalQuantity;
+  } else {
+    cart.push({ name, size, price, qty: modalQuantity });
+  }
+  saveCart();
+  renderCart();
+  closeProductModal();
+  showToast(`${name} (${size}) agregado · Ver mi pedido →`);
+});
+
+cartItemsEl.addEventListener('click', (e) => {
+  const button = e.target.closest('button[data-action]');
+  if (!button) return;
+  const index = Number(button.closest('.cart-item').dataset.index);
+  const action = button.dataset.action;
+  if (action === 'inc') cart[index].qty = Math.min(20, cart[index].qty + 1);
+  if (action === 'dec') cart[index].qty -= 1;
+  if (action === 'remove' || cart[index].qty < 1) cart.splice(index, 1);
+  saveCart();
+  renderCart();
+});
+
+function updateDeliveryFields() {
+  const needsAddress = getDelivery() === 'despacho';
+  addressFields.hidden = !needsAddress;
+  addressFields.querySelectorAll('input').forEach(input => {
+    input.required = needsAddress;
+    input.disabled = !needsAddress;
+  });
+  renderCart();
+}
+
+document.querySelectorAll('input[name="delivery"]').forEach(input => {
+  input.addEventListener('change', updateDeliveryFields);
+});
+
+orderForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (!cart.length) return;
+  if (!WEBPAY_URL) {
+    alert('El pago online aún no está disponible. Escríbenos por WhatsApp al +56 9 8235 7332 para completar tu pedido.');
+    return;
+  }
+
+  const data = new FormData(orderForm);
+  const delivery = getDelivery();
+  const total = cartSubtotal() + shippingCost();
+  const orderNumber = 'LC-' + Date.now().toString(36).toUpperCase().slice(-6);
+
+  // El asunto resume monto, entrega y cafés para cruzarlo rápido con el aviso de pago de Transbank
+  const summary = cart.map(item => `${item.qty}x ${item.name} (${item.size})`).join(', ');
+  const payload = {
+    _subject: `Pedido ${orderNumber} · ${formatCLP(total)} · ${delivery === 'despacho' ? 'Con despacho' : 'Retiro'} · ${summary}`,
+    _template: 'table',
+    Estado: `Pendiente de pago: verifica en Transbank un pago por ${formatCLP(total)}`,
+    Pedido: orderNumber,
+    'Total a pagar': formatCLP(total),
+    Despacho: delivery === 'despacho' ? 'Sí, despacho RM ($4.000, 5 días hábiles)' : 'No, retiro en Providencia'
+  };
+  cart.forEach((item, i) => {
+    payload[`Café ${i + 1}`] = `${item.qty} x ${item.name}, formato ${item.size}, ${formatCLP(item.price)} c/u = ${formatCLP(item.price * item.qty)}`;
+  });
+  Object.assign(payload, {
+    Subtotal: formatCLP(cartSubtotal()),
+    Envío: shippingCost() ? formatCLP(shippingCost()) : 'Gratis',
+    Nombre: data.get('nombre'),
+    email: data.get('email'),
+    Teléfono: data.get('telefono'),
+    Dirección: delivery === 'despacho' ? `${data.get('direccion')}, ${data.get('comuna')}` : '—',
+    Notas: data.get('notas') || '—'
+  });
+
+  fetch(`https://formsubmit.co/ajax/${ORDER_EMAIL}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify(payload)
+  }).catch(() => {});
+
+  document.getElementById('orderNumber').textContent = orderNumber;
+  document.getElementById('payAmount').textContent = formatCLP(total);
+  document.getElementById('payLink').href = WEBPAY_URL;
+  payStep.dataset.amount = total;
+  orderForm.hidden = true;
+  payStep.hidden = false;
+  payStep.scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
+
+document.getElementById('copyAmount').addEventListener('click', (e) => {
+  const button = e.currentTarget;
+  navigator.clipboard.writeText(payStep.dataset.amount)
+    .then(() => {
+      button.textContent = '¡Monto copiado!';
+      setTimeout(() => { button.textContent = 'Copiar monto'; }, 2000);
+    })
+    .catch(() => {});
+});
+
+document.getElementById('payLink').addEventListener('click', () => {
+  cart = [];
+  saveCart();
+  renderCart();
+});
+
+document.getElementById('newOrder').addEventListener('click', () => {
+  orderForm.reset();
+  orderForm.hidden = false;
+  payStep.hidden = true;
+  updateDeliveryFields();
+});
+
+updateDeliveryFields();

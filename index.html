@@ -25,6 +25,7 @@
         <li><a href="#productos">Productos y Servicios</a></li>
         <li><a href="#nosotros">Nosotros</a></li>
         <li><a href="#contacto">Contacto</a></li>
+        <li><a href="#pedido" class="nav-cart">Mi pedido <span class="cart-count" id="cartCount">0</span></a></li>
       </ul>
     </div>
   </nav>
@@ -49,7 +50,7 @@
       <div class="products-intro">
         <div class="products-intro-icon">☕</div>
         <h3>Venta de Café</h3>
-        <p>Café de especialidad tostado por las mejores tostadurías de Chile. Granos seleccionados de origen único y blends exclusivos, disponibles en formato de 1 kg.</p>
+        <p>Café de especialidad tostado por las mejores tostadurías de Chile. Granos seleccionados de origen único y blends exclusivos, disponibles en formatos de 250 g y 1 kg.</p>
       </div>
 
       <h4 class="catalog-brand">We Are Four (WR4)</h4>
@@ -148,6 +149,65 @@
         <a href="#contacto" class="btn btn-secondary">Solicitar Cotización</a>
       </div>
 
+    </div>
+  </section>
+
+  <!-- Pedido -->
+  <section class="section section-alt" id="pedido">
+    <div class="container">
+      <h2 class="section-title">Tu Pedido</h2>
+      <div class="order-grid">
+        <div class="order-summary">
+          <h3>Productos</h3>
+          <ul class="cart-items" id="cartItems"></ul>
+          <p class="cart-empty" id="cartEmpty">Aún no agregas productos. Haz clic en un café del catálogo para elegir el formato y agregarlo.</p>
+
+          <h3>Entrega</h3>
+          <label class="delivery-option">
+            <input type="radio" name="delivery" value="despacho" checked>
+            <span><strong>Despacho a domicilio (RM) — $4.000</strong><br><small>Entrega en un plazo de 5 días hábiles.</small></span>
+          </label>
+          <label class="delivery-option">
+            <input type="radio" name="delivery" value="retiro">
+            <span><strong>Retiro en Providencia — Gratis</strong><br><small>Coordinamos día y hora por WhatsApp.</small></span>
+          </label>
+
+          <div class="order-totals">
+            <div><span>Subtotal</span><span id="cartSubtotal">$0</span></div>
+            <div><span>Envío</span><span id="cartShipping">$0</span></div>
+            <div class="order-total"><span>Total</span><span id="cartTotal">$0</span></div>
+          </div>
+        </div>
+
+        <div class="order-checkout">
+          <form class="contact-form" id="orderForm">
+            <h3>Tus datos</h3>
+            <input type="text" name="nombre" placeholder="Nombre y apellido" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="tel" name="telefono" placeholder="Teléfono (+56 9 ...)" required>
+            <div id="addressFields">
+              <input type="text" name="direccion" placeholder="Dirección (calle, número, depto)" required>
+              <input type="text" name="comuna" placeholder="Comuna (solo Región Metropolitana)" required>
+            </div>
+            <textarea name="notas" rows="2" placeholder="Notas para tu pedido (opcional)"></textarea>
+            <button type="submit" class="btn btn-primary" id="orderSubmit" disabled>Continuar al pago</button>
+          </form>
+
+          <div class="contact-form pay-step" id="payStep" hidden>
+            <h3>¡Pedido <span id="orderNumber"></span> recibido!</h3>
+            <p>Ahora paga con Webpay. Al abrir el link, <strong>ingresa exactamente este monto</strong>:</p>
+            <div class="pay-amount" id="payAmount">$0</div>
+            <button type="button" class="btn btn-secondary" id="copyAmount">Copiar monto</button>
+            <a href="https://www.webpay.cl/form-pay/434839" target="_blank" rel="noopener" class="btn btn-primary" id="payLink">Pagar con Webpay</a>
+            <div class="pay-qr">
+              <img src="webpay-qr.png" alt="Código QR para pagar con Webpay" width="160" height="160">
+              <p>¿Estás en el computador? Escanea este código con tu celular para pagar.</p>
+            </div>
+            <p class="pay-note">Te enviaremos la confirmación del pago y la entrega por email o WhatsApp.</p>
+            <button type="button" class="pay-reset" id="newOrder">Hacer otro pedido</button>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -275,10 +335,19 @@
           </label>
         </div>
         <div class="product-modal-price" id="modalPrice">$12.990</div>
-        <a href="#contacto" class="btn btn-primary" onclick="closeProductModal()">Consultar / Pedir</a>
+        <div class="product-modal-actions">
+          <div class="qty-control">
+            <button type="button" id="modalQtyDec" aria-label="Quitar uno">−</button>
+            <span id="modalQty">1</span>
+            <button type="button" id="modalQtyInc" aria-label="Agregar uno">+</button>
+          </div>
+          <button type="button" class="btn btn-primary" id="modalAddToCart">Agregar al pedido</button>
+        </div>
       </div>
     </div>
   </div>
+
+  <a href="#pedido" class="toast" id="toast" role="status"></a>
 
   <script src="script.js"></script>
 </body>
