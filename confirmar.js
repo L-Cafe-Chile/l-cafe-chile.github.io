@@ -2,7 +2,7 @@
 const EMAILJS_PUBLIC_KEY = 'RHL7Gs7SeeiFWCbIB';
 const EMAILJS_SERVICE_ID = 'service_teovito';
 // Pega aquí el Template ID de la plantilla "Pago confirmado" de EmailJS:
-const EMAILJS_CONFIRM_TEMPLATE_ID = '';
+const EMAILJS_CONFIRM_TEMPLATE_ID = 'template_kbxyccl';
 
 // Huella (SHA-256) del PIN de acceso. El PIN no se guarda en el código; es una barrera simple, no seguridad bancaria.
 const PIN_HASH = '62c1a1412c8251a532cf5f01c4bf6e3fb2d3203889191f2759de217fe161837e';
