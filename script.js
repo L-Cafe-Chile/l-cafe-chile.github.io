@@ -128,6 +128,18 @@ document.addEventListener('keydown', (e) => {
 const WEBPAY_URL = 'https://www.webpay.cl/form-pay/434839';
 const SHIPPING_RM = 4000;
 const ORDER_EMAIL = 'lcafechile@gmail.com';
+
+// Correo de confirmación con logo (EmailJS). Pega aquí los 3 datos de tu cuenta de EmailJS;
+// mientras estén vacíos, el cliente recibe la confirmación en texto simple por FormSubmit.
+const EMAILJS_PUBLIC_KEY = '';
+const EMAILJS_SERVICE_ID = '';
+const EMAILJS_TEMPLATE_ID = '';
+
+function emailjsReady() {
+  return Boolean(EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && window.emailjs);
+}
+
+if (emailjsReady()) emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
 const CART_KEY = 'lcafe-cart';
 const PICKUP_LABEL = 'retiro en local (Hamburgo 1155, Ñuñoa)';
 
@@ -285,10 +297,16 @@ orderForm.addEventListener('submit', (e) => {
     email: data.get('email'),
     Teléfono: data.get('telefono'),
     Dirección: delivery === 'despacho' ? `${data.get('direccion')}, ${data.get('comuna')}` : '—',
-    Notas: data.get('notas') || '—',
-    // Copia automática al cliente (FormSubmit la envía al campo "email")
-    _autoresponse: buildCustomerConfirmation(data.get('nombre'), orderNumber, delivery, total)
+    Notas: data.get('notas') || '—'
   });
+
+  // Confirmación al cliente: con diseño vía EmailJS si está configurado; si no, texto simple vía FormSubmit
+  if (emailjsReady()) {
+    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, buildCustomerEmailParams(data, orderNumber, delivery, total))
+      .catch(() => {});
+  } else {
+    payload._autoresponse = buildCustomerConfirmation(data.get('nombre'), orderNumber, delivery, total);
+  }
 
   sendOrderEmail(payload);
 
@@ -311,11 +329,33 @@ orderForm.addEventListener('submit', (e) => {
   payStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 
-function buildCustomerConfirmation(nombre, orderNumber, delivery, total) {
-  const lines = cart.map(item => `- ${item.qty} x ${item.name} (${item.size}): ${formatCLP(item.price * item.qty)}`);
-  const entrega = delivery === 'despacho'
+function deliveryDescription(delivery) {
+  return delivery === 'despacho'
     ? 'Despacho a domicilio en la Región Metropolitana, en un plazo de 5 días hábiles desde la confirmación del pago.'
     : 'Retiro en nuestro local de Hamburgo 1155, Ñuñoa. Te escribiremos por WhatsApp para coordinar día y hora.';
+}
+
+// Variables que usa la plantilla de EmailJS: {{nombre}}, {{order_number}}, {{{items_html}}}, {{shipping}}, {{total}}, {{entrega}}, {{pay_url}}
+function buildCustomerEmailParams(data, orderNumber, delivery, total) {
+  const cell = 'padding:10px 0;border-bottom:1px solid #EFE8DD;font-size:15px;color:#2C1810;';
+  return {
+    to_email: data.get('email'),
+    nombre: data.get('nombre').split(' ')[0],
+    order_number: orderNumber,
+    items_html: cart.map(item =>
+      `<tr><td style="${cell}">${item.qty} × ${item.name}<br><span style="font-size:13px;color:#6D5D53;">Formato ${item.size}</span></td>` +
+      `<td style="${cell}text-align:right;white-space:nowrap;">${formatCLP(item.price * item.qty)}</td></tr>`
+    ).join(''),
+    shipping: shippingCost() ? formatCLP(shippingCost()) : 'Gratis',
+    total: formatCLP(total),
+    entrega: deliveryDescription(delivery),
+    pay_url: WEBPAY_URL
+  };
+}
+
+function buildCustomerConfirmation(nombre, orderNumber, delivery, total) {
+  const lines = cart.map(item => `- ${item.qty} x ${item.name} (${item.size}): ${formatCLP(item.price * item.qty)}`);
+  const entrega = deliveryDescription(delivery);
   return [
     `¡Hola ${nombre.split(' ')[0]}! Recibimos tu pedido ${orderNumber} en L'Café.`,
     '',
