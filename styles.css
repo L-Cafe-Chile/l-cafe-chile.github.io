@@ -1192,3 +1192,26 @@ body.modal-open {
   background: var(--coffee);
   box-shadow: 0 4px 15px rgba(62, 39, 35, 0.3);
 }
+
+/* Aviso destacado para informar el pago */
+.pay-confirm {
+  border-top: none;
+  background: #FFF8E1;
+  border: 2px solid var(--yellow);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.pay-step .pay-confirm .pay-confirm-text {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--coffee-dark);
+}
+
+.pay-confirm-text strong {
+  color: var(--coffee-dark);
+}
+
+.pay-step .pay-confirm #paidButton {
+  margin-bottom: 0;
+}
