@@ -66,12 +66,38 @@ function formatCLP(value) {
   return '$' + value.toLocaleString('es-CL');
 }
 
+// "250 g, molido medio" (los pedidos guardados antes de existir la molienda no la traen)
+function itemFormat(item) {
+  return item.grind ? `${item.size}, ${item.grind.toLowerCase()}` : item.size;
+}
+
+// Molienda elegida: "Grano entero", "Molido fino/medio/grueso", o null si falta elegir
+function getModalGrind() {
+  const type = document.querySelector('input[name="grindType"]:checked');
+  if (!type) return null;
+  if (type.value === 'grano') return 'Grano entero';
+  const level = document.querySelector('input[name="grindLevel"]:checked');
+  return level ? level.value : null;
+}
+
 function getModalSelection() {
   const selected = document.querySelector('input[name="modalSize"]:checked');
+  const grind = getModalGrind();
   if (selected && selected.value === '1000') {
-    return { size: '1 kg', price: Number(productModal.dataset.kgPrice) };
+    return { size: '1 kg', price: Number(productModal.dataset.kgPrice), grind };
   }
-  return { size: '250 g', price: Number(productModal.dataset.price250) || DEFAULT_PRICE_250G };
+  return { size: '250 g', price: Number(productModal.dataset.price250) || DEFAULT_PRICE_250G, grind };
+}
+
+function updateGrindUI() {
+  const type = document.querySelector('input[name="grindType"]:checked');
+  const isGround = Boolean(type && type.value === 'molido');
+  document.getElementById('grindLevels').hidden = !isGround;
+  if (!isGround) document.querySelectorAll('input[name="grindLevel"]').forEach(input => { input.checked = false; });
+
+  const addButton = document.getElementById('modalAddToCart');
+  addButton.disabled = !getModalGrind();
+  addButton.textContent = !type ? 'Elige grano o molido' : (getModalGrind() ? 'Agregar al pedido' : 'Elige la molienda');
 }
 
 function updateModalPrice() {
@@ -94,6 +120,8 @@ function openProductModal(card) {
 
   const size250 = document.querySelector('input[name="modalSize"][value="250"]');
   if (size250) size250.checked = true;
+  document.querySelectorAll('input[name="grindType"], input[name="grindLevel"]').forEach(input => { input.checked = false; });
+  updateGrindUI();
   setModalQty(1);
   updateModalPrice();
 
@@ -114,6 +142,10 @@ document.querySelectorAll('.product-card').forEach(card => {
 document.querySelectorAll('input[name="modalSize"]').forEach(input => {
   input.addEventListener('change', updateModalPrice);
   input.addEventListener('click', (e) => e.stopPropagation());
+});
+
+document.querySelectorAll('input[name="grindType"], input[name="grindLevel"]').forEach(input => {
+  input.addEventListener('change', updateGrindUI);
 });
 
 document.getElementById('modalQtyDec').addEventListener('click', () => setModalQty(modalQuantity - 1));
@@ -216,7 +248,7 @@ function renderCart() {
       <span class="cart-item-total"></span>
       <button type="button" class="cart-item-remove" data-action="remove" aria-label="Eliminar">&times;</button>`;
     li.querySelector('strong').textContent = item.name;
-    li.querySelector('small').textContent = `${item.size} · ${formatCLP(item.price)} c/u`;
+    li.querySelector('small').textContent = `${item.size}${item.grind ? ' · ' + item.grind : ''} · ${formatCLP(item.price)} c/u`;
     li.querySelector('.qty-control span').textContent = item.qty;
     li.querySelector('.cart-item-total').textContent = formatCLP(item.price * item.qty);
     cartItemsEl.appendChild(li);
@@ -240,18 +272,19 @@ function showToast(message) {
 }
 
 document.getElementById('modalAddToCart').addEventListener('click', () => {
-  const { size, price } = getModalSelection();
+  const { size, price, grind } = getModalSelection();
+  if (!grind) return;
   const name = modalTitle.textContent;
-  const existing = cart.find(item => item.name === name && item.size === size);
+  const existing = cart.find(item => item.name === name && item.size === size && item.grind === grind);
   if (existing) {
     existing.qty += modalQuantity;
   } else {
-    cart.push({ name, size, price, qty: modalQuantity });
+    cart.push({ name, size, grind, price, qty: modalQuantity });
   }
   saveCart();
   renderCart();
   closeProductModal();
-  showToast(`${name} (${size}) agregado · Ver mi pedido →`);
+  showToast(`${name} (${size}, ${grind.toLowerCase()}) agregado · Ver mi pedido →`);
 });
 
 cartItemsEl.addEventListener('click', (e) => {
@@ -294,7 +327,7 @@ orderForm.addEventListener('submit', (e) => {
   const orderNumber = 'LC-' + Date.now().toString(36).toUpperCase().slice(-6);
 
   // El asunto resume monto, entrega y cafés para cruzarlo rápido con el aviso de pago de Transbank
-  const summary = cart.map(item => `${item.qty}x ${item.name} (${item.size})`).join(', ');
+  const summary = cart.map(item => `${item.qty}x ${item.name} (${itemFormat(item)})`).join(', ');
 
   currentOrder = {
     number: orderNumber,
@@ -306,7 +339,7 @@ orderForm.addEventListener('submit', (e) => {
     email: data.get('email'),
     telefono: data.get('telefono'),
     direccion: delivery === 'despacho' ? `${data.get('direccion')}, ${data.get('comuna')}` : '',
-    items: cart.map(item => ({ q: item.qty, name: item.name, size: item.size, price: item.price }))
+    items: cart.map(item => ({ q: item.qty, name: item.name, size: item.size, g: item.grind || '', price: item.price }))
   };
   currentOrder.confirmLink = buildConfirmLink(currentOrder);
 
@@ -320,7 +353,7 @@ orderForm.addEventListener('submit', (e) => {
     Despacho: delivery === 'despacho' ? 'Sí, despacho RM ($4.000, 5 días hábiles)' : `No, ${PICKUP_LABEL}`
   };
   cart.forEach((item, i) => {
-    payload[`Café ${i + 1}`] = `${item.qty} x ${item.name}, formato ${item.size}, ${formatCLP(item.price)} c/u = ${formatCLP(item.price * item.qty)}`;
+    payload[`Café ${i + 1}`] = `${item.qty} x ${item.name}, formato ${itemFormat(item)}, ${formatCLP(item.price)} c/u = ${formatCLP(item.price * item.qty)}`;
   });
   Object.assign(payload, {
     Subtotal: formatCLP(cartSubtotal()),
@@ -365,7 +398,7 @@ function buildCustomerEmailParams(data, orderNumber, delivery, total) {
     nombre: data.get('nombre').split(' ')[0],
     order_number: orderNumber,
     items_html: cart.map(item =>
-      `<tr><td style="${cell}">${item.qty} × ${item.name}<br><span style="font-size:13px;color:#6D5D53;">Formato ${item.size}</span></td>` +
+      `<tr><td style="${cell}">${item.qty} × ${item.name}<br><span style="font-size:13px;color:#6D5D53;">Formato ${itemFormat(item)}</span></td>` +
       `<td style="${cell}text-align:right;white-space:nowrap;">${formatCLP(item.price * item.qty)}</td></tr>`
     ).join(''),
     shipping: shippingCost() ? formatCLP(shippingCost()) : 'Gratis',
@@ -392,7 +425,7 @@ async function sendCustomerConfirmation(params) {
 }
 
 function buildCustomerConfirmation(nombre, orderNumber, delivery, total) {
-  const lines = cart.map(item => `- ${item.qty} x ${item.name} (${item.size}): ${formatCLP(item.price * item.qty)}`);
+  const lines = cart.map(item => `- ${item.qty} x ${item.name} (${itemFormat(item)}): ${formatCLP(item.price * item.qty)}`);
   const entrega = deliveryDescription(delivery);
   return [
     `¡Hola ${nombre.split(' ')[0]}! Recibimos tu pedido ${orderNumber} en L'Café.`,

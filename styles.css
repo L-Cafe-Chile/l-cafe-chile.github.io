@@ -1341,3 +1341,94 @@ body.modal-open {
 .admin-items li:last-child {
   border-bottom: none;
 }
+
+/* Molienda en la ventana del producto */
+.modal-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--coffee-medium);
+  margin-bottom: 8px;
+}
+
+.grind-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.grind-options.grind-type {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grind-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 2px;
+  padding: 10px 6px;
+  border: 2px solid var(--cream);
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--coffee-dark);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.grind-option:has(input:checked) {
+  border-color: var(--coffee-dark);
+  background: var(--cream);
+}
+
+.grind-option:has(input:focus-visible) {
+  outline: 2px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.grind-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.grind-option svg {
+  width: 34px;
+  height: 34px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  margin-bottom: 2px;
+}
+
+.grind-option strong {
+  font-size: 0.92rem;
+}
+
+.grind-option small {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  line-height: 1.3;
+}
+
+#modalAddToCart:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+@media (max-width: 480px) {
+  .product-modal-img {
+    height: 160px;
+  }
+}
+
+.product-modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+}

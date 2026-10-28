@@ -18,6 +18,11 @@ function formatCLP(value) {
   return '$' + Number(value).toLocaleString('es-CL');
 }
 
+// "250 g, molido medio" (los pedidos anteriores a la molienda no la traen)
+function itemFormat(item) {
+  return item.g ? `${item.size}, ${String(item.g).toLowerCase()}` : item.size;
+}
+
 function escapeHtml(text) {
   return String(text).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 }
@@ -82,7 +87,7 @@ if (!order) {
   const itemsEl = document.getElementById('aItems');
   order.items.forEach(item => {
     const li = document.createElement('li');
-    li.textContent = `${item.q} × ${item.name} (${item.size}) — ${formatCLP(item.q * item.price)}`;
+    li.textContent = `${item.q} × ${item.name} (${itemFormat(item)}) — ${formatCLP(item.q * item.price)}`;
     itemsEl.appendChild(li);
   });
 
@@ -126,7 +131,7 @@ sendButton.addEventListener('click', async () => {
     nombre: order.nombre.split(' ')[0],
     order_number: order.n,
     items_html: order.items.map(item =>
-      `<tr><td style="${cell}">${Number(item.q)} × ${escapeHtml(item.name)}<br><span style="font-size:13px;color:#6D5D53;">Formato ${escapeHtml(item.size)}</span></td>` +
+      `<tr><td style="${cell}">${Number(item.q)} × ${escapeHtml(item.name)}<br><span style="font-size:13px;color:#6D5D53;">Formato ${escapeHtml(itemFormat(item))}</span></td>` +
       `<td style="${cell}text-align:right;white-space:nowrap;">${formatCLP(item.q * item.price)}</td></tr>`
     ).join(''),
     shipping: order.envio ? formatCLP(order.envio) : 'Gratis',

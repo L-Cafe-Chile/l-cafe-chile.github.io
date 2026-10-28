@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20261028d">
+  <link rel="stylesheet" href="styles.css?v=20261029a">
 </head>
 <body>
 
@@ -354,6 +354,7 @@
       <div class="product-modal-body">
         <h5 class="product-modal-title" id="modalTitle"></h5>
         <p class="product-modal-desc" id="modalDesc"></p>
+        <p class="modal-label">Formato</p>
         <div class="product-modal-options">
           <label class="product-option">
             <input type="radio" name="modalSize" value="250" checked>
@@ -363,6 +364,46 @@
             <input type="radio" name="modalSize" value="1000">
             <span>1 kg</span>
           </label>
+        </div>
+
+        <p class="modal-label">¿Cómo lo quieres?</p>
+        <div class="grind-options grind-type">
+          <label class="grind-option">
+            <input type="radio" name="grindType" value="grano">
+            <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M14 21 L16 15 H24 L26 21"/><rect x="11" y="21" width="18" height="14" rx="2"/><path d="M15 30 H25"/><path d="M20 15 V9 H30"/><circle cx="31.5" cy="9" r="2" fill="currentColor"/></svg>
+            <strong>Grano entero</strong>
+            <small>Para moler en casa</small>
+          </label>
+          <label class="grind-option">
+            <input type="radio" name="grindType" value="molido">
+            <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M6 20 H24 A9 7 0 0 1 6 20 Z"/><path d="M24 21 L35 15"/><path d="M8.5 20 Q15 11 21.5 20" fill="currentColor" fill-opacity="0.35"/><circle cx="12" cy="13" r="0.8" fill="currentColor"/><circle cx="17" cy="10.5" r="0.8" fill="currentColor"/><circle cx="20" cy="14" r="0.8" fill="currentColor"/></svg>
+            <strong>Molido</strong>
+            <small>Listo para preparar</small>
+          </label>
+        </div>
+
+        <div class="grind-levels" id="grindLevels" hidden>
+          <p class="modal-label">Tipo de molienda</p>
+          <div class="grind-options">
+            <label class="grind-option">
+              <input type="radio" name="grindLevel" value="Molido fino">
+              <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M11 18 H27 V23 A6 6 0 0 1 21 29 H17 A6 6 0 0 1 11 23 Z"/><path d="M27 20 H29 A2.5 2.5 0 0 1 29 25 H26.5"/><path d="M7 33 H31"/><path d="M16 14 C14.5 12.5 17.5 11.5 16 10"/><path d="M21.5 14 C20 12.5 23 11.5 21.5 10"/></svg>
+              <strong>Fino</strong>
+              <small>Espresso · Turca</small>
+            </label>
+            <label class="grind-option">
+              <input type="radio" name="grindLevel" value="Molido medio">
+              <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M15 21 L13 10 H26 L24 21 Z"/><path d="M15 21 H24 L26.5 34 H12.5 Z"/><path d="M13 10 L9 9"/><path d="M26 12 H30 L29 20 L25 19"/><path d="M17.5 10 V8 H21.5 V10"/></svg>
+              <strong>Medio</strong>
+              <small>Moka · Americana</small>
+            </label>
+            <label class="grind-option">
+              <input type="radio" name="grindLevel" value="Molido grueso">
+              <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="10" y="12" width="17" height="22" rx="2"/><path d="M9 12 H28"/><path d="M18.5 12 V5"/><circle cx="18.5" cy="4" r="1.6" fill="currentColor"/><path d="M12 21 H25"/><path d="M27 16 H30 A2 2 0 0 1 32 18 V27 A2 2 0 0 1 30 29 H27"/><rect x="12" y="24" width="13" height="8" rx="1" fill="currentColor" fill-opacity="0.3" stroke="none"/></svg>
+              <strong>Grueso</strong>
+              <small>Prensa francesa</small>
+            </label>
+          </div>
         </div>
         <div class="product-modal-price" id="modalPrice">$12.990</div>
         <div class="product-modal-actions">
@@ -380,6 +421,6 @@
   <a href="#pedido" class="toast" id="toast" role="status"></a>
 
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4.4.1/dist/email.min.js"></script>
-  <script src="script.js?v=20261028d"></script>
+  <script src="script.js?v=20261029a"></script>
 </body>
 </html>
