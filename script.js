@@ -129,6 +129,7 @@ const WEBPAY_URL = 'https://www.webpay.cl/form-pay/434839';
 const SHIPPING_RM = 4000;
 const ORDER_EMAIL = 'lcafechile@gmail.com';
 const CART_KEY = 'lcafe-cart';
+const PICKUP_LABEL = 'retiro en local (Hamburgo 1155, Ñuñoa)';
 
 const cartItemsEl = document.getElementById('cartItems');
 const cartEmptyEl = document.getElementById('cartEmpty');
@@ -139,6 +140,7 @@ const addressFields = document.getElementById('addressFields');
 const payStep = document.getElementById('payStep');
 const toast = document.getElementById('toast');
 let cart = loadCart();
+let currentOrder = null;
 let toastTimer;
 
 function loadCart() {
@@ -271,7 +273,7 @@ orderForm.addEventListener('submit', (e) => {
     Estado: `Pendiente de pago: verifica en Transbank un pago por ${formatCLP(total)}`,
     Pedido: orderNumber,
     'Total a pagar': formatCLP(total),
-    Despacho: delivery === 'despacho' ? 'Sí, despacho RM ($4.000, 5 días hábiles)' : 'No, retiro en Providencia'
+    Despacho: delivery === 'despacho' ? 'Sí, despacho RM ($4.000, 5 días hábiles)' : `No, ${PICKUP_LABEL}`
   };
   cart.forEach((item, i) => {
     payload[`Café ${i + 1}`] = `${item.qty} x ${item.name}, formato ${item.size}, ${formatCLP(item.price)} c/u = ${formatCLP(item.price * item.qty)}`;
@@ -286,24 +288,53 @@ orderForm.addEventListener('submit', (e) => {
     Notas: data.get('notas') || '—'
   });
 
+  sendOrderEmail(payload);
+
+  currentOrder = {
+    number: orderNumber,
+    total,
+    delivery,
+    summary,
+    nombre: data.get('nombre'),
+    email: data.get('email'),
+    telefono: data.get('telefono')
+  };
+
+  payStep.querySelectorAll('.order-number').forEach(el => { el.textContent = orderNumber; });
+  document.getElementById('payAmount').textContent = formatCLP(total);
+  document.getElementById('payLink').href = WEBPAY_URL;
+  setPaymentStatus(false);
+  orderForm.hidden = true;
+  payStep.hidden = false;
+  payStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+function sendOrderEmail(payload) {
   fetch(`https://formsubmit.co/ajax/${ORDER_EMAIL}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify(payload)
   }).catch(() => {});
+}
 
-  document.getElementById('orderNumber').textContent = orderNumber;
-  document.getElementById('payAmount').textContent = formatCLP(total);
-  document.getElementById('payLink').href = WEBPAY_URL;
-  payStep.dataset.amount = total;
-  orderForm.hidden = true;
-  payStep.hidden = false;
-  payStep.scrollIntoView({ behavior: 'smooth', block: 'center' });
-});
+function setPaymentStatus(paid) {
+  const stepPay = document.getElementById('stepPay');
+  const stepConfirm = document.getElementById('stepConfirm');
+  stepPay.classList.toggle('current', !paid);
+  stepPay.classList.toggle('done', paid);
+  stepPay.querySelector('.step-icon').textContent = paid ? '✓' : '2';
+  stepConfirm.classList.toggle('current', paid);
+  document.getElementById('stepPayText').textContent = paid ? 'Pago informado' : 'Pendiente';
+  document.getElementById('stepConfirmText').textContent = paid
+    ? 'En validación: contrastamos tu pedido con el pago.'
+    : 'Validamos tu pago y te avisamos.';
+  document.getElementById('payPanel').hidden = paid;
+  document.getElementById('paidPanel').hidden = !paid;
+}
 
 document.getElementById('copyAmount').addEventListener('click', (e) => {
   const button = e.currentTarget;
-  navigator.clipboard.writeText(payStep.dataset.amount)
+  navigator.clipboard.writeText(String(currentOrder.total))
     .then(() => {
       button.textContent = '¡Monto copiado!';
       setTimeout(() => { button.textContent = 'Copiar monto'; }, 2000);
@@ -311,13 +342,35 @@ document.getElementById('copyAmount').addEventListener('click', (e) => {
     .catch(() => {});
 });
 
-document.getElementById('payLink').addEventListener('click', () => {
+document.getElementById('paidButton').addEventListener('click', () => {
+  if (!currentOrder) return;
+  sendOrderEmail({
+    _subject: `Pago informado · Pedido ${currentOrder.number} · ${formatCLP(currentOrder.total)} · ${currentOrder.delivery === 'despacho' ? 'Con despacho' : 'Retiro'}`,
+    _template: 'table',
+    Estado: `El cliente informa que pagó. Valida en Transbank un pago por ${formatCLP(currentOrder.total)}`,
+    Pedido: currentOrder.number,
+    'Monto pagado': formatCLP(currentOrder.total),
+    Productos: currentOrder.summary,
+    Entrega: currentOrder.delivery === 'despacho' ? 'Despacho RM' : PICKUP_LABEL,
+    Nombre: currentOrder.nombre,
+    email: currentOrder.email,
+    Teléfono: currentOrder.telefono
+  });
+
+  document.getElementById('paidName').textContent = currentOrder.nombre.split(' ')[0];
+  document.getElementById('paidAmount').textContent = formatCLP(currentOrder.total);
+  document.getElementById('paidDelivery').textContent = currentOrder.delivery === 'despacho'
+    ? 'Una vez confirmado, despachamos tu pedido en un plazo de 5 días hábiles.'
+    : 'Una vez confirmado, te escribimos por WhatsApp para coordinar el retiro en Hamburgo 1155, Ñuñoa.';
+  setPaymentStatus(true);
+
   cart = [];
   saveCart();
   renderCart();
 });
 
 document.getElementById('newOrder').addEventListener('click', () => {
+  currentOrder = null;
   orderForm.reset();
   orderForm.hidden = false;
   payStep.hidden = true;

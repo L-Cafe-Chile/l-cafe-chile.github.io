@@ -169,7 +169,7 @@
           </label>
           <label class="delivery-option">
             <input type="radio" name="delivery" value="retiro">
-            <span><strong>Retiro en Providencia — Gratis</strong><br><small>Coordinamos día y hora por WhatsApp.</small></span>
+            <span><strong>Retiro en local — Gratis</strong><br><small>Hamburgo 1155, Ñuñoa. Coordinamos día y hora por WhatsApp.</small></span>
           </label>
 
           <div class="order-totals">
@@ -194,16 +194,46 @@
           </form>
 
           <div class="contact-form pay-step" id="payStep" hidden>
-            <h3>¡Pedido <span id="orderNumber"></span> recibido!</h3>
-            <p>Ahora paga con Webpay. Al abrir el link, <strong>ingresa exactamente este monto</strong>:</p>
-            <div class="pay-amount" id="payAmount">$0</div>
-            <button type="button" class="btn btn-secondary" id="copyAmount">Copiar monto</button>
-            <a href="https://www.webpay.cl/form-pay/434839" target="_blank" rel="noopener" class="btn btn-primary" id="payLink">Pagar con Webpay</a>
-            <div class="pay-qr">
-              <img src="webpay-qr.png" alt="Código QR para pagar con Webpay" width="160" height="160">
-              <p>¿Estás en el computador? Escanea este código con tu celular para pagar.</p>
+            <h3>Tu pedido <span class="order-number"></span></h3>
+
+            <ol class="order-steps">
+              <li class="order-step done">
+                <span class="step-icon">✓</span>
+                <div><strong>Pedido recibido</strong><small>Ya tenemos el detalle de tu pedido.</small></div>
+              </li>
+              <li class="order-step current" id="stepPay">
+                <span class="step-icon">2</span>
+                <div><strong>Pago</strong><small id="stepPayText">Pendiente</small></div>
+              </li>
+              <li class="order-step" id="stepConfirm">
+                <span class="step-icon">3</span>
+                <div><strong>Confirmación</strong><small id="stepConfirmText">Validamos tu pago y te avisamos.</small></div>
+              </li>
+            </ol>
+
+            <div id="payPanel">
+              <p>Paga con Webpay. Al abrir el link, <strong>ingresa exactamente este monto</strong>:</p>
+              <div class="pay-amount" id="payAmount">$0</div>
+              <button type="button" class="btn btn-secondary" id="copyAmount">Copiar monto</button>
+              <a href="https://www.webpay.cl/form-pay/434839" target="_blank" rel="noopener" class="btn btn-primary" id="payLink">Pagar con Webpay</a>
+              <div class="pay-qr">
+                <img src="webpay-qr.png" alt="Código QR para pagar con Webpay" width="160" height="160">
+                <p>¿Estás en el computador? Escanea este código con tu celular para pagar.</p>
+              </div>
+              <div class="pay-confirm">
+                <p>Cuando termines de pagar (con el botón o con el QR desde tu celular), avísanos aquí:</p>
+                <button type="button" class="btn btn-primary" id="paidButton">Ya realicé el pago</button>
+              </div>
             </div>
-            <p class="pay-note">Te enviaremos la confirmación del pago y la entrega por email o WhatsApp.</p>
+
+            <div class="paid-panel" id="paidPanel" hidden>
+              <p class="paid-title">¡Gracias, <span id="paidName"></span>!</p>
+              <p>Recibimos el aviso de tu pago de <strong id="paidAmount"></strong> para el pedido <strong class="order-number"></strong>.</p>
+              <p>Ahora contrastamos tu pedido con el pago registrado en Webpay y te confirmaremos por email o WhatsApp.</p>
+              <p id="paidDelivery"></p>
+              <p class="pay-note">Si aún no pagabas, puedes hacerlo igual en <a href="https://www.webpay.cl/form-pay/434839" target="_blank" rel="noopener">este link de Webpay</a> por el mismo monto.</p>
+            </div>
+
             <button type="button" class="pay-reset" id="newOrder">Hacer otro pedido</button>
           </div>
         </div>

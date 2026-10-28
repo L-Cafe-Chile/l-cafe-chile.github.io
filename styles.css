@@ -1094,3 +1094,101 @@ body.modal-open {
     display: none;
   }
 }
+
+/* Etapas del pedido: pedido → pago → confirmación */
+.order-steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.order-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--cream-light);
+  color: var(--text-light);
+}
+
+.order-step strong {
+  display: block;
+  color: var(--coffee-dark);
+  font-size: 0.95rem;
+}
+
+.order-step small {
+  font-size: 0.82rem;
+}
+
+.step-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(62, 39, 35, 0.25);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-light);
+}
+
+.order-step.done .step-icon {
+  background: #4E7D4A;
+  border-color: #4E7D4A;
+  color: var(--white);
+}
+
+.order-step.current {
+  background: var(--cream);
+  box-shadow: inset 0 0 0 2px var(--yellow);
+}
+
+.order-step.current .step-icon {
+  border-color: var(--coffee-dark);
+  color: var(--coffee-dark);
+}
+
+.pay-confirm {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(62, 39, 35, 0.12);
+}
+
+.pay-step .pay-confirm p {
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+.paid-panel p {
+  margin-bottom: 12px;
+}
+
+.pay-step .paid-panel .paid-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  color: var(--coffee-dark);
+}
+
+.pay-note a {
+  color: var(--coffee);
+}
+
+.order-number {
+  white-space: nowrap;
+}
+
+.pay-step #paidButton {
+  background: var(--coffee-dark);
+  color: var(--cream);
+}
+
+.pay-step #paidButton:hover {
+  background: var(--coffee);
+  box-shadow: 0 4px 15px rgba(62, 39, 35, 0.3);
+}
