@@ -131,9 +131,9 @@ const ORDER_EMAIL = 'lcafechile@gmail.com';
 
 // Correo de confirmación con logo (EmailJS). Pega aquí los 3 datos de tu cuenta de EmailJS;
 // mientras estén vacíos, el cliente recibe la confirmación en texto simple por FormSubmit.
-const EMAILJS_PUBLIC_KEY = '';
-const EMAILJS_SERVICE_ID = '';
-const EMAILJS_TEMPLATE_ID = '';
+const EMAILJS_PUBLIC_KEY = 'RHL7Gs7SeeiFWCbIB';
+const EMAILJS_SERVICE_ID = 'service_teovito';
+const EMAILJS_TEMPLATE_ID = 'template_swkgvn9';
 
 function emailjsReady() {
   return Boolean(EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && window.emailjs);
