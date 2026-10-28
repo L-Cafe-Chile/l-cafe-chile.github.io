@@ -285,7 +285,9 @@ orderForm.addEventListener('submit', (e) => {
     email: data.get('email'),
     Teléfono: data.get('telefono'),
     Dirección: delivery === 'despacho' ? `${data.get('direccion')}, ${data.get('comuna')}` : '—',
-    Notas: data.get('notas') || '—'
+    Notas: data.get('notas') || '—',
+    // Copia automática al cliente (FormSubmit la envía al campo "email")
+    _autoresponse: buildCustomerConfirmation(data.get('nombre'), orderNumber, delivery, total)
   });
 
   sendOrderEmail(payload);
@@ -308,6 +310,29 @@ orderForm.addEventListener('submit', (e) => {
   payStep.hidden = false;
   payStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
+
+function buildCustomerConfirmation(nombre, orderNumber, delivery, total) {
+  const lines = cart.map(item => `- ${item.qty} x ${item.name} (${item.size}): ${formatCLP(item.price * item.qty)}`);
+  const entrega = delivery === 'despacho'
+    ? 'Despacho a domicilio en la Región Metropolitana, en un plazo de 5 días hábiles desde la confirmación del pago.'
+    : 'Retiro en nuestro local de Hamburgo 1155, Ñuñoa. Te escribiremos por WhatsApp para coordinar día y hora.';
+  return [
+    `¡Hola ${nombre.split(' ')[0]}! Recibimos tu pedido ${orderNumber} en L'Café.`,
+    '',
+    'Detalle de tu pedido:',
+    ...lines,
+    `Envío: ${shippingCost() ? formatCLP(shippingCost()) : 'Gratis'}`,
+    `Total: ${formatCLP(total)}`,
+    '',
+    `Entrega: ${entrega}`,
+    '',
+    `Si aún no pagas, puedes hacerlo en ${WEBPAY_URL} ingresando exactamente ${formatCLP(total)}.`,
+    'Una vez que validemos tu pago, te confirmaremos por email o WhatsApp.',
+    '',
+    '¡Gracias por preferirnos!',
+    "L'Café · lcafe.cl · +56 9 8235 7332 · Instagram @lcafechile"
+  ].join('\n');
+}
 
 function sendOrderEmail(payload) {
   fetch(`https://formsubmit.co/ajax/${ORDER_EMAIL}`, {
