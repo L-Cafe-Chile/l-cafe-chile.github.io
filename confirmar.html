@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Confirmar pago · L'Café</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=20261028d">
+</head>
+<body class="admin-page">
+  <main class="container admin-container">
+    <img src="logo.png" alt="L'Café" class="admin-logo">
+    <h1 class="section-title">Confirmar pago</h1>
+
+    <div class="contact-form admin-card">
+      <p class="admin-empty" id="noData" hidden>No hay un pedido para confirmar. Abre esta página desde el enlace <strong>"Confirmar pago al cliente"</strong> de tu correo interno del pedido.</p>
+
+      <div id="orderView" hidden>
+        <h3>Pedido <span id="aOrder" class="order-number"></span></h3>
+
+        <dl class="admin-data">
+          <dt>Cliente</dt><dd id="aNombre"></dd>
+          <dt>Email</dt><dd id="aEmail"></dd>
+          <dt>Entrega</dt><dd id="aEntrega"></dd>
+        </dl>
+
+        <ul class="admin-items" id="aItems"></ul>
+        <div class="order-totals">
+          <div><span>Envío</span><span id="aEnvio"></span></div>
+          <div class="order-total"><span>Total</span><span id="aTotal"></span></div>
+        </div>
+
+        <p class="admin-check">Antes de enviar, verifica en tu portal de Transbank que entró un pago por <strong id="aTotalCheck"></strong>.</p>
+        <p class="admin-warning" id="alreadySent" hidden></p>
+
+        <div class="admin-pin" id="pinBox">
+          <input type="password" inputmode="numeric" id="pin" placeholder="PIN" autocomplete="off">
+          <label><input type="checkbox" id="rememberPin" checked> Recordar en este dispositivo</label>
+        </div>
+
+        <button type="button" class="btn btn-primary" id="sendConfirm">Enviar confirmación al cliente</button>
+        <p class="admin-status" id="status" role="status"></p>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4.4.1/dist/email.min.js"></script>
+  <script src="confirmar.js?v=20261028d"></script>
+</body>
+</html>

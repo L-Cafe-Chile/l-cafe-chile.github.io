@@ -142,6 +142,22 @@ function emailjsReady() {
 if (emailjsReady()) emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
 const CART_KEY = 'lcafe-cart';
 const PICKUP_LABEL = 'retiro en local (Hamburgo 1155, Ñuñoa)';
+const CONFIRM_PAGE_URL = 'https://lcafe.cl/confirmar.html';
+
+// Enlace para el correo interno: abre la página privada con el pedido listo para confirmar el pago al cliente
+function buildConfirmLink(order) {
+  const data = {
+    n: order.number,
+    nombre: order.nombre,
+    email: order.email,
+    total: order.total,
+    envio: order.shipping,
+    entrega: order.delivery,
+    direccion: order.direccion,
+    items: order.items
+  };
+  return `${CONFIRM_PAGE_URL}?d=${encodeURIComponent(JSON.stringify(data))}`;
+}
 
 const cartItemsEl = document.getElementById('cartItems');
 const cartEmptyEl = document.getElementById('cartEmpty');
@@ -279,12 +295,28 @@ orderForm.addEventListener('submit', (e) => {
 
   // El asunto resume monto, entrega y cafés para cruzarlo rápido con el aviso de pago de Transbank
   const summary = cart.map(item => `${item.qty}x ${item.name} (${item.size})`).join(', ');
+
+  currentOrder = {
+    number: orderNumber,
+    total,
+    shipping: shippingCost(),
+    delivery,
+    summary,
+    nombre: data.get('nombre'),
+    email: data.get('email'),
+    telefono: data.get('telefono'),
+    direccion: delivery === 'despacho' ? `${data.get('direccion')}, ${data.get('comuna')}` : '',
+    items: cart.map(item => ({ q: item.qty, name: item.name, size: item.size, price: item.price }))
+  };
+  currentOrder.confirmLink = buildConfirmLink(currentOrder);
+
   const payload = {
     _subject: `Pedido ${orderNumber} · ${formatCLP(total)} · ${delivery === 'despacho' ? 'Con despacho' : 'Retiro'} · ${summary}`,
     _template: 'table',
     Estado: `Pendiente de pago: verifica en Transbank un pago por ${formatCLP(total)}`,
     Pedido: orderNumber,
     'Total a pagar': formatCLP(total),
+    'Confirmar pago al cliente': `Cuando verifiques el pago en Transbank, abre este enlace: ${currentOrder.confirmLink}`,
     Despacho: delivery === 'despacho' ? 'Sí, despacho RM ($4.000, 5 días hábiles)' : `No, ${PICKUP_LABEL}`
   };
   cart.forEach((item, i) => {
@@ -309,16 +341,6 @@ orderForm.addEventListener('submit', (e) => {
     if (!status.sent) payload._autoresponse = fallbackText;
     sendOrderEmail(payload);
   });
-
-  currentOrder = {
-    number: orderNumber,
-    total,
-    delivery,
-    summary,
-    nombre: data.get('nombre'),
-    email: data.get('email'),
-    telefono: data.get('telefono')
-  };
 
   payStep.querySelectorAll('.order-number').forEach(el => { el.textContent = orderNumber; });
   document.getElementById('payAmount').textContent = formatCLP(total);
@@ -431,6 +453,7 @@ document.getElementById('paidButton').addEventListener('click', () => {
     Estado: `El cliente informa que pagó. Valida en Transbank un pago por ${formatCLP(currentOrder.total)}`,
     Pedido: currentOrder.number,
     'Monto pagado': formatCLP(currentOrder.total),
+    'Confirmar pago al cliente': `Cuando verifiques el pago en Transbank, abre este enlace: ${currentOrder.confirmLink}`,
     Productos: currentOrder.summary,
     Entrega: currentOrder.delivery === 'despacho' ? 'Despacho RM' : PICKUP_LABEL,
     Nombre: currentOrder.nombre,
